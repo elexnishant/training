@@ -1,0 +1,17 @@
+---
+# tasks file for demo_app
+- name: copy demo app to web server                                                                                          
+  copy: src=demo/app/ dest=/var/www/demo mode=0755                                                                           
+  notify: restart apache2                                                                                                    
+                                                                                                                             
+- name: copy config file from /var/www/demo to sites available                                                               
+  copy: src=demo/demo.conf dest=/etc/apache2/sites-available mode=0644                                                       
+  notify: restart apache2                                                                                                    
+                                                                                                                             
+- name: setup pythin Virtual env for the flask app                                                                           
+  pip: requirements=/var/www/demo/requirements.txt virtualenv=/var/www/demo/.venv                                            
+  notify: restart apache2
+
+- name: activate demo apache site                                                                                            
+  file: src=/etc/apache2/sites-available/demo.conf dest=/etc/apache2/sites-enabled/demo.conf state=link                      
+  notify: restart apache2

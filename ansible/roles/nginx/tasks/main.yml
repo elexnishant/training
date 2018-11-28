@@ -1,0 +1,31 @@
+---
+# tasks file for nginx
+- name: installing nginx
+  apt: name=nginx state=present
+
+- name: ensure load balancer is up and running
+  service: name=nginx state=started enabled=yes
+
+- name: configure nginx site
+  template: src=nginx.conf.j2 dest=/etc/nginx/sites-available/{{ item.key }} mode=0644
+  with_dict: "{{sites}}"
+  notify: restart nginx
+
+- name: get active sites
+  shell: ls -1 /etc/nginx/sites-enabled
+  register: active
+
+# name: de-activate default nginx site
+# file: path=/etc/nginx/sites-enabled/default state=absent
+#  notify: restart nginx
+
+- name: deactivate sites not present in dictionary
+  file: path=/etc/nginx/sites-enabled/{{ item }} state=absent
+  with_items: active.stdout_lines
+  when: item not in sites
+  notify: restart nginx
+
+- name: activate nginx site present in dictionary 
+  file: src=/etc/nginx/sites-available/{{ item.key }} dest=/etc/nginx/sites-enabled/{{ item.key }} state=link
+  with_dict: "{{sites}}"
+  notify: restart nginx

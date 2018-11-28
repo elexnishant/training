@@ -1,0 +1,6 @@
+#load balancer
+---
+  - hosts: loadbalancer
+    become: true
+    roles:
+      - nginx

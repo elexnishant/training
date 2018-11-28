@@ -1,0 +1,5 @@
+#list the hostname
+---
+  hosts: all
+  command: ping
+  command: echo Hi

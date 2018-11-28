@@ -1,0 +1,14 @@
+#call all
+---
+#include all component at one place
+  - hosts: all
+    become: true
+    gather_facts: false
+    tasks:
+      - name: update apt cache
+        apt: update_cache=yes cache_valid_time=86400
+
+  - include: control.yaml
+  - include: lb.yaml
+  - include: db.yaml
+  - include: web.yaml
